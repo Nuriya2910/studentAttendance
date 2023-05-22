@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const { token } = require('./middleware/token');
+const { checkAdmin, checkTeacher, checkStudent } = require('./middleware/checkRole');
 
 require('dotenv').config();
 
@@ -20,10 +22,19 @@ app.use(express.urlencoded({extended: true}));
 app.use(cors())
 
 app.use("/", require('./routes/index'))
-app.use("/teachers", require('./routes/teachers'))
-app.use("/groups", require('./routes/groups'))
-app.use("/students", require('./routes/students')) 
-app.use("/attendance", require('./routes/attendance'))
+app.use("/admin/teachers", token, checkAdmin , require('./routes/teachers'))
+app.use("/admin/groups" , token, checkAdmin, require('./routes/groups'))
+app.use("/admin/students", token, checkAdmin , require('./routes/students')) 
+app.use("/teacher/attendance" , token, checkAdmin, require('./routes/attendance'))
+
+app.use("/teacher" , token, checkTeacher, require('./routes/teacherGroup'))
+app.use("/teacher/profile" , token, checkTeacher, require('./routes/teacherGroup'))
+app.use("/teacher/auth" ,  require('./routes/auth'))
+app.use("/auth", require('./routes/auth'))
+
+app.use("/admin", token , checkAdmin ,   require('./routes/admin'))
+
+ 
 
 const PORT = process.env.PORT || 3000
 

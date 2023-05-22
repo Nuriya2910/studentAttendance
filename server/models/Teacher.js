@@ -7,6 +7,10 @@ module.exports = model('Teacher', new Schema({
     phone: Number,
     password: String,
     subject: String,
+    status: {
+        type: String,
+        default: "teacher"
+    },
     group: [
         {
            title: String,

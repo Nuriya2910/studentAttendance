@@ -2,7 +2,7 @@
 const Teacher = require('../models/Teacher')
 
 exports.index = async (req, res) => {
-    let { idTeacher } = req.query
+    let { idTeacher } = req.query  
     console.log(idTeacher)
     let data = await Teacher.findById(idTeacher, ['group'])
     if (data) {

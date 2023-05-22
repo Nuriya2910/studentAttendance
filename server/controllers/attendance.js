@@ -16,30 +16,27 @@ exports.show = async (req, res) => {
         res.json({ title: 'Special attendance', data: data })
     }
     else {
-        res.json({ title: 'Xato' })
+        res.json({ title: 'Xato' }) 
     }
 }
 
 exports.create = async (req, res) => {
-    let { status, date, reason, score } = req.body;
-    let { idStudent } = req.query;
-    try {
-        let idStudentCheck = await Student.findById(idStudent)
-        if (status && date && reason && score) {
-            const data = await Student.findByIdAndUpdate(idStudent, { $push: { attendance: req.body } })
-            if (data) {
-                res.json({ title: 'Attendance added to Student', data })
-            } else {
-                res.json({ title: 'Xatolik' })
+    req.body.data.map(async item =>{
+        try{
+            let user = await Student.findByIdAndUpdate(item.id, {
+            $push:{
+                attendance: {
+                    date: item.attendance.date,
+                    absend: Boolean(item.attendance.absend),
+                    score: Number(item.attendance.score)
+                }
             }
-        } else {
-            res.json({ title: 'Ma`lumot toliq emas' })
-        }
+        })
+        res.json({title: "Attendance added to Student", data: user});
+    } catch(error){
+        res.json(error);
     }
-    catch (e) {
-        res.json({ title: 'Error', e })
-    }
-
+    })
 }
 
 exports.remove = async (req, res) => {
