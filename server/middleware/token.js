@@ -10,7 +10,7 @@ exports.token = async (req, res, next) =>{
             let decoded = await jwt.verify(token, process.env.jwt_key)
             let user = {}
             user.id = decoded.id
-            user.status = decoded.status
+            user.role = decoded.role
             req.user = user
             next()
         }

@@ -2,7 +2,6 @@ const {Router} = require('express')
 const { 
     index, 
     create,
-    show,
     remove,
     update
  } = require('../controllers/attendance')
@@ -10,7 +9,6 @@ const {
 const router = Router()
 
 router.get('/', index)
-router.get('/:id', show)
 router.post('/', create)
 router.delete('/', remove)
 router.put('/', update)

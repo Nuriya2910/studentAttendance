@@ -3,28 +3,28 @@ const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken')
 
 
-exports.register = async (req, res, next) => {
-    const { login, password } = req.body;
-    const data = await User.findOne({ login })
-    if (data) {
-        res.json({ dsc: 'Such a user exists' })
-    } else {
-        const hash = await bcrypt.hash(password, 12);
-        const user = await User.create({ ...req.body, password: hash })
-        res.json({ dsc: 'User created' })
-    }
-}
+// exports.register = async (req, res, next) => {
+//     const { login, password } = req.body;
+//     const data = await User.findOne({ login })
+//     if (data) {
+//         res.json({ dsc: 'Such a user exists' })
+//     } else {
+//         const hash = await bcrypt.hash(password, 12);
+//         const user = await User.create({ ...req.body, password: hash })
+//         res.json({ dsc: 'User created' })
+//     }
+// }
     
 exports.login = async (req, res, next) => {
-    const { login, password } = req.body
-    // Check if login and password is provided
-    if (!login || !password) {
+    const { email, password } = req.body
+    // Check if email and password is provided
+    if (!email || !password) {
         return res.status(400).json({
-            message: "Username or Password not present",
+            message: "Email or Password not present",
         })
     }
     try {
-        const user = await User.findOne({ login })
+        const user = await User.findOne({ email })
         if (!user) {
             res.status(400).json({
                 message: "Login not successful",
@@ -39,7 +39,7 @@ exports.login = async (req, res, next) => {
             } else {
                 let payload = {
                     id: user.id,
-                    status: user.status
+                    role: user.role
                 }
                 const token = await jwt.sign(payload, process.env.jwt_key, { expiresIn: '1h' })
                 res.status(200).json({

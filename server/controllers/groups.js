@@ -1,5 +1,5 @@
 // const { title } = require('process')
-const Teacher = require('../models/Teacher')
+const Teacher = require('../models/User')
 
 exports.index = async (req, res) => {
     let { idTeacher } = req.query  

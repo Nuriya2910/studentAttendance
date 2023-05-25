@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { token } = require('./middleware/token');
+// const { adminToken } = require('./middleware/adminToken');
 const { checkAdmin, checkTeacher, checkStudent } = require('./middleware/checkRole');
 
 require('dotenv').config();
@@ -22,17 +23,21 @@ app.use(express.urlencoded({extended: true}));
 app.use(cors())
 
 app.use("/", require('./routes/index'))
-app.use("/admin/teachers", token, checkAdmin , require('./routes/teachers'))
-app.use("/admin/groups" , token, checkAdmin, require('./routes/groups'))
-app.use("/admin/students", token, checkAdmin , require('./routes/students')) 
-app.use("/teacher/attendance" , token, checkAdmin, require('./routes/attendance'))
-
-app.use("/teacher" , token, checkTeacher, require('./routes/teacherGroup'))
-app.use("/teacher/profile" , token, checkTeacher, require('./routes/teacherGroup'))
-app.use("/teacher/auth" ,  require('./routes/auth'))
 app.use("/auth", require('./routes/auth'))
 
 app.use("/admin", token , checkAdmin ,   require('./routes/admin'))
+app.use("/admin/teachers", token , checkAdmin, require('./routes/teachers'))
+app.use("/admin/groups" , token, checkAdmin, require('./routes/groups'))
+app.use("/admin/students", token, checkAdmin , require('./routes/students')) 
+
+app.use("/teacher" , token, checkTeacher, require('./routes/teacherRoute'))
+app.use("/teacher/attendance" , token, checkTeacher, require('./routes/attendance'))
+app.use("/teacher/profile" , token, checkTeacher, require('./routes/teacherRoute'))
+app.use("/teacher/group" , token, checkTeacher, require('./routes/groups'))
+
+app.use("/student" , token, checkStudent, require('./routes/studentRoute'))
+
+
 
  
 

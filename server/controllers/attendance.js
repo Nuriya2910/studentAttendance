@@ -1,42 +1,38 @@
 // const { title } = require('process')
-const Student = require('../models/Student')
+const Student = require('../models/User')
 
 exports.index = async (req, res) => {
     let { idStudent } = req.query
-    console.log(idStudent)
     let data = await Student.findById(idStudent, ['attendance'])
     if (data) {
         res.json({ title: 'Student`s all attendance', data: data })
     }
 }
 
-exports.show = async (req, res) => {
-    const data = await Student.findById(req.query.idStudent).select({ attendance: { $elemMatch: { _id: req.params.id } } })
-    if (data) {
-        res.json({ title: 'Special attendance', data: data })
-    }
-    else {
-        res.json({ title: 'Xato' }) 
-    }
-}
-
 exports.create = async (req, res) => {
-    req.body.data.map(async item =>{
-        try{
-            let user = await Student.findByIdAndUpdate(item.id, {
-            $push:{
-                attendance: {
-                    date: item.attendance.date,
-                    absend: Boolean(item.attendance.absend),
-                    score: Number(item.attendance.score)
+    let { data, idStudent, idAttendance } = req.body
+    if (!data) {
+        res.json({ title: "Data not found" })
+    } else {
+        req.body.data.map(async item => {
+            try {
+                    let user = await Student.findByIdAndUpdate(item.id, {
+                        $push: {
+                            attendance: {
+                                date: item.attendance.date,
+                                absend: Boolean(item.attendance.absend),
+                                score: Number(item.attendance.score)
+                            }
+                        }
+                    })
+                    // user.attendance.date.getFullYear()
+                    res.json({ title: "Attendance added to Student", data: user });
+                
+                } catch (error) {
+                    res.json(error);
                 }
-            }
-        })
-        res.json({title: "Attendance added to Student", data: user});
-    } catch(error){
-        res.json(error);
+            })
     }
-    })
 }
 
 exports.remove = async (req, res) => {
@@ -54,18 +50,18 @@ exports.remove = async (req, res) => {
 
 exports.update = async (req, res) => {
     const { status, date, reason, score } = req.body;
-    if(req.query.idStudent && req.query.idAttendance){
-        if(status || date || reason || score){
+    if (req.query.idStudent && req.query.idAttendance) {
+        if (status || date || reason || score) {
             const data = await Student.findOneAndUpdate(
                 {
                     _id: req.query.idStudent,
-                    "attendance._id": req.query.idAttendance   
-                }, 
+                    "attendance._id": req.query.idAttendance
+                },
                 {
-                $set: {
-                    "attendance.$": { ...req.body, _id: req.query.idAttendance }
-                }
-            })
+                    $set: {
+                        "attendance.$": { ...req.body, _id: req.query.idAttendance }
+                    }
+                })
             if (data) {
                 res.json({ title: 'Attendance updated', data })
             } else {
