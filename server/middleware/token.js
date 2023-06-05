@@ -1,12 +1,12 @@
-const jwt  = require("jsonwebtoken")
+const jwt = require("jsonwebtoken")
 
-exports.token = async (req, res, next) =>{
-    let token = req.params.token || req.headers. authorization
-    if(!token){
-        res.json({title: "Error", message: "Token is not defined"})
+exports.token = async (req, res, next) => {
+    let token = req.params.token || req.headers.authorization
+    if (!token) {
+        res.json({ title: "Error", message: "Token is not defined" })
     }
-    else{
-        try{
+    else {
+        try {
             let decoded = await jwt.verify(token, process.env.jwt_key)
             let user = {}
             user.id = decoded.id
@@ -14,7 +14,7 @@ exports.token = async (req, res, next) =>{
             req.user = user
             next()
         }
-        catch(err){
+        catch (err) {
             res.json({
                 title: "Error", message: "Token wrong!"
             })

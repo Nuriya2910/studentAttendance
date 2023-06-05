@@ -1,21 +1,24 @@
-const {Router} = require('express')
-const { 
+const { Router } = require('express')
+const {
     index,
 } = require('../controllers/groups')
-const { 
-    show, 
+const {
+    show,
 } = require('../controllers/teachers')
-const { 
+const {
     update
- } = require('../controllers/teacherGroup')
-
+} = require('../controllers/teacherGroup')
+const {
+    create,
+} = require('../controllers/students')
 
 
 const router = Router()
 
 router.get('/', index)
-router.get('/profile/:id', show)
-router.put('/profile/:id', update)
+router.get('/profile', show)
+router.put('/profile', update)
+router.put('/student', create )
 
 
 

@@ -3,7 +3,7 @@ const Student = require('../models/User')
 
 exports.index = async (req, res) => {
     let { idStudent } = req.query
-    let data = await Student.findById(idStudent, ['attendance'])
+    let data = await Student.findById(idStudent, ['attendance', "firstName"])
     if (data) {
         res.json({ title: 'Student`s all attendance', data: data })
     }
@@ -14,8 +14,22 @@ exports.create = async (req, res) => {
     if (!data) {
         res.json({ title: "Data not found" })
     } else {
-        req.body.data.map(async item => {
-            try {
+        let ans = []
+        await req.body.data.map(async item => {
+            let user1 = await Student.findById(item.id)
+
+            let dat = (user1.attendance.map(elem => {
+                return (elem.date.getTime() == new Date(item.attendance.date).getTime());
+            }));
+            if (dat.length > 0) {
+                ans.push({
+                    id: item.id,
+                    success: false,
+                    message: "Bunday kunga yo`qlama qilingan"
+                })
+            } else {
+                try {
+
                     let user = await Student.findByIdAndUpdate(item.id, {
                         $push: {
                             attendance: {
@@ -25,13 +39,14 @@ exports.create = async (req, res) => {
                             }
                         }
                     })
+
                     // user.attendance.date.getFullYear()
-                    res.json({ title: "Attendance added to Student", data: user });
-                
                 } catch (error) {
                     res.json(error);
                 }
-            })
+            }
+        })
+        res.json({ title: "Attendance added to Student", data: ans });
     }
 }
 

@@ -2,11 +2,18 @@
 const Teacher = require('../models/User')
 
 exports.index = async (req, res) => {
-    let { idTeacher } = req.query  
-    console.log(idTeacher)
-    let data = await Teacher.findById(idTeacher, ['group'])
-    if (data) {
-        res.json({ title: 'Teacher`s all group', data: data })
+    if (req.user.role == "admin") {
+        let { idTeacher } = req.query
+        let data = await Teacher.findById(idTeacher, ['group'])
+        if (data) {
+            res.json({ title: 'Teacher`s all group', data: data })
+        }
+    } else if (req.user.role == 'teacher') {
+        let idTeacher = req.user.id
+        let data = await Teacher.findById(idTeacher, ['group'])
+        if (data) {
+            res.json({ title: 'Teacher`s all group', data: data })
+        }
     }
 }
 
@@ -57,18 +64,28 @@ exports.remove = async (req, res) => {
 
 exports.update = async (req, res) => {
     const { title, day, time } = req.body;
-    if(req.query.idTeacher && req.query.IdGroup){
-        if(title || day || time){
+    if (req.query.idTeacher && req.query.idGroup) {
+        if (title || day || time) {
+            const qwe = await Teacher.findById(req.query.idTeacher).select({ group: { $elemMatch: { _id: req.query.idGroup } } })
+            let group = {
+                _id: qwe.group[0]._id,
+                title: qwe.group[0].title,
+                day: qwe.group[0].day,
+                time: qwe.group[0].time,
+                students: qwe.group[0].students,
+                ...req.body
+            };
             const data = await Teacher.findOneAndUpdate(
                 {
                     _id: req.query.idTeacher,
-                    "group._id": req.query.IdGroup   
-                }, 
+                    "group._id": req.query.idGroup
+                },
                 {
-                $set: {
-                    "group.$": { ...req.body, _id: req.query.IdGroup }
-                }
-            })
+                    $set: {
+                        "group.$": group
+                    }
+                })
+
             if (data) {
                 res.json({ title: 'Group updated', data })
             } else {

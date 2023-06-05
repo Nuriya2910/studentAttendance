@@ -8,6 +8,6 @@ const {
 
 const router = Router()
 
-router.get('/signIn', login)
+router.post('/signIn', login)
 
 module.exports = router

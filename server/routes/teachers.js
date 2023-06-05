@@ -1,11 +1,12 @@
-const {Router} = require('express')
-const { 
-    index, 
+const { Router } = require('express')
+const {
+    index,
     create,
     show,
     remove,
     update
- } = require('../controllers/teachers')
+} = require('../controllers/teachers')
+
 
 const router = Router()
 

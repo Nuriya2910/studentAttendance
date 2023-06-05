@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs")
 
 
 exports.index = async (req, res) => {
-    let data = await Student.find({role: 'student'},["firstName", "lastName", "email", "phone", "parentsPhone", "password", "role", "attendance"] )
+    let data = await Student.find({ role: 'student' }, ["firstName", "lastName", "email", "phone", "parentsPhone", "password", "role", "attendance"])
     if (data) {
         res.json({ title: 'All student', data: data })
     }
@@ -17,35 +17,41 @@ exports.show = async (req, res) => {
     }
 }
 
-exports.create = async (req, res) => { 
+exports.create = async (req, res) => {
     let { firstName, lastName, email, phone, parentsPhone, password } = req.body;
 
-    try{
+    try {
         if (firstName && lastName && email && phone && parentsPhone && password) {
-        let student = new Student({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: req.body.email,
-            phone: req.body.phone,
-            parentsPhone: req.body.parentsPhone,
-            password: req.body.password,
-            role: "student"
-        })
-        student.save()
-        .then(async data => { 
-            if (data){ 
-                 const hash = await bcrypt.hash(data.password, 12)
-                 data.password = hash
-                res.json({ title: 'Student created', data: data })
+            let DATA = await Student.findOne({ email: req.body.email })
+            if (DATA) {
+                res.json({ title: "Bunday email mavjud" })
             }
-        })
+            else {
+                let student = new Student({
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    email: req.body.email,
+                    phone: req.body.phone,
+                    parentsPhone: req.body.parentsPhone,
+                    password: req.body.password,
+                    role: "student"
+                })
+                const hash = await bcrypt.hash(student.password, 12)
+                student.password = hash
+                student.save()
+                    .then(async data => {
+                        if (data) {
+                            res.json({ title: 'Student created', data: data })
+                        }
+                    })
+            }
+        }
+        else {
+            res.json({ title: 'Ma`lumot toliq emas' })
+        }
+    } catch (err) {
+        res.json({ dsc: err })
     }
-    else {
-        res.json({ title: 'Ma`lumot toliq emas' })
-    }
-}catch(err){
-    res.json({dsc: err})
-}
 }
 
 exports.remove = async (req, res) => {
@@ -58,7 +64,7 @@ exports.remove = async (req, res) => {
 exports.update = async (req, res) => {
     let { firstName, lastName, email, phone, parentsPhone, password } = req.body;
 
-    if (firstName && lastName && email && phone && parentsPhone && password) {
+    if (firstName || lastName || email || phone || parentsPhone || password) {
         let data = await Student.findByIdAndUpdate(req.params.id, req.body)
         if (data) {
             res.json({ title: 'Student edited', data: data })
@@ -70,13 +76,13 @@ exports.update = async (req, res) => {
 }
 
 exports.addStudentToGroup = async (req, res) => {
-    let { idTeacher, IdGroup, idStudent } = req.body
-    if (idTeacher && IdGroup && idStudent) {
+    let { idTeacher, idGroup, idStudent } = req.body
+    if (idTeacher && idGroup && idStudent) {
         let teacher = await Teacher.findById(idTeacher)
         if (!teacher) {
             res.json({ title: "Teacher not found" })
         } else {
-            let student = await Teacher.findById(idTeacher, { group: { $elemMatch: { _id: IdGroup } } })
+            let student = await Teacher.findById(idTeacher, { group: { $elemMatch: { _id: idGroup } } })
             let qwe = student.group[0].students.filter(elem => elem == idStudent)
             if (qwe.length > 0) {
                 res.json({ title: "Bunday oquvchi allaqachon mavjud" })
@@ -85,7 +91,7 @@ exports.addStudentToGroup = async (req, res) => {
                 let group = await Teacher.findOneAndUpdate(
                     {
                         _id: idTeacher,
-                        "group._id": IdGroup
+                        "group._id": idGroup
                     },
                     {
                         $push: {
@@ -107,8 +113,8 @@ exports.addStudentToGroup = async (req, res) => {
 }
 
 exports.removeStudentFromGroup = async (req, res) => {
-    let { idTeacher, IdGroup, idStudent } = req.body
-    if (idTeacher && IdGroup && idStudent) {
+    let { idTeacher, idGroup, idStudent } = req.body
+    if (idTeacher && idGroup && idStudent) {
         let teacher = await Teacher.findById(idTeacher)
         if (!teacher) {
             res.json({ title: "Teacher not found" })
@@ -116,7 +122,7 @@ exports.removeStudentFromGroup = async (req, res) => {
             let group = await Teacher.findOneAndUpdate(
                 {
                     _id: idTeacher,
-                    "group._id": IdGroup
+                    "group._id": idGroup
                 },
                 {
                     $pull: {
