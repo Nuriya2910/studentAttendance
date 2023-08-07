@@ -12,7 +12,7 @@ const {
 const router = Router()
 
 router.post('/manage', addStudentToGroup)
-router.delete('/manage', removeStudentFromGroup)
+router.put('/manage', removeStudentFromGroup)
 
 router.get('/', index)
 router.get('/:id', show)

@@ -73,6 +73,9 @@ exports.remove = async (req, res) => {
 exports.update = async (req, res) => {
     let { firstName, lastName, email, subject, phone, password } = req.body;
     if (firstName || lastName || email || subject || phone || password) {
+        const hash = await bcrypt.hash(password, 12)
+        password = hash
+        req.body.password = password
         let data = await Teacher.findByIdAndUpdate(req.params.id, req.body)
         if (data) {
             res.json({ title: 'Teacher edited', data: data })

@@ -1,54 +1,75 @@
-// const { title } = require('process')
 const Student = require('../models/User')
 
 exports.index = async (req, res) => {
     let { idStudent } = req.query
-    let data = await Student.findById(idStudent, ['attendance', "firstName"])
+    let data = await Student.findById(idStudent, ['attendance', "firstName", "lastName"])
     if (data) {
         res.json({ title: 'Student`s all attendance', data: data })
     }
 }
 
+
 exports.create = async (req, res) => {
-    let { data, idStudent, idAttendance } = req.body
-    if (!data) {
-        res.json({ title: "Data not found" })
-    } else {
-        let ans = []
-        await req.body.data.map(async item => {
-            let user1 = await Student.findById(item.id)
-
-            let dat = (user1.attendance.map(elem => {
-                return (elem.date.getTime() == new Date(item.attendance.date).getTime());
-            }));
-            if (dat.length > 0) {
-                ans.push({
-                    id: item.id,
-                    success: false,
-                    message: "Bunday kunga yo`qlama qilingan"
-                })
-            } else {
-                try {
-
-                    let user = await Student.findByIdAndUpdate(item.id, {
-                        $push: {
-                            attendance: {
-                                date: item.attendance.date,
-                                absend: Boolean(item.attendance.absend),
-                                score: Number(item.attendance.score)
-                            }
-                        }
-                    })
-
-                    // user.attendance.date.getFullYear()
-                } catch (error) {
-                    res.json(error);
-                }
+    try{ 
+        if (req.body.data) {
+        let next1 = false
+            let student = await Student.findById(req.body.data[0]._id, {})
+            if(student.attendance.length>0){
+                        let date1 = new Date(student.attendance[student.attendance?.length-1]?.date).toString()
+                        let date2= new Date(req.body.data[0]?.date).toString()
+                        next1=date1===date2
+            }else{
+                next1=false
             }
-        })
-        res.json({ title: "Attendance added to Student", data: ans });
+        if (!next1) {
+            req.body.data.map(async item => {
+                let student = await Student.findByIdAndUpdate(item._id, {
+                    $push: {
+                        attendance: {
+                            absend: item.absend,
+                            date: item.date,
+                            score: item.score
+                        }
+                    }
+                })
+            })
+            res.json({ message: "Success" })
+        } else {
+            res.json({ title: "Error", message: "You are already add attendance to students" })
+        }
+    }
+    } catch(e){
+        console.log(e);
     }
 }
+
+// exports.create = async (req, res) => {
+//     if (req.body.data) {
+//         let next1 = false
+//         for (let i = 0; i < req.body.data.length; i++) {
+//             let student = await Student.findById(req.body.data[i]._id, {})
+//             if (student.attendance[0]) {
+//                 next1 = student.attendance[student.attendance.length - 1].date === req.body.data[0].date
+//             }
+//         }
+//         if (!next1) {
+//             req.body.data.map(async item => {
+//                 let student = await Student.findByIdAndUpdate(item._id, {
+//                     $push: {
+//                         attendance: {
+//                             absend: item.absend,
+//                             date: item.date,
+//                             score: item.score
+//                         }
+//                     }
+//                 })
+//             })
+//             res.json({ message: "Success" })
+//         } else {
+//             res.json({ title: "Error", message: "You are already add attendance to students" })
+//         }
+//     }
+// }
 
 exports.remove = async (req, res) => {
     if (req.query.idStudent && req.query.idAttendance) {

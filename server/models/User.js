@@ -49,7 +49,7 @@ module.exports = model('User', new Schema({
                 default: false
             },
             date: {
-                type: Date,
+                type: String,
                 default: Date.now()
             },
             score: {
@@ -58,6 +58,6 @@ module.exports = model('User', new Schema({
             }
         }
     ]
+ 
 
-
-},{timestamps: true}))
+},{timestamps: true})) 

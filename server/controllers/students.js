@@ -10,10 +10,22 @@ exports.index = async (req, res) => {
     }
 }
 
-exports.show = async (req, res) => {
-    let data = await Student.findById(req.params.id)
-    if (data) {
-        res.json({ title: 'Special student', data: data })
+exports.show = async (req, res) => { 
+    if(req.user.role=="student"){
+        let data = await Student.findById(req.user.id)
+        if (data) {
+            res.json({ title: 'Special student', data: data })
+        }else{
+            res.json({title: `Data is not defined`})
+        }
+
+    }else{
+        let data = await Student.findById(req.params.id)
+        if (data) {
+            res.json({ title: 'Special student', data: data })
+        }else{
+            res.json({title: `Data is not defined`})
+        }
     }
 }
 
@@ -57,14 +69,44 @@ exports.create = async (req, res) => {
 exports.remove = async (req, res) => {
     let data = await Student.findByIdAndDelete(req.params.id)
     if (data) {
+        let student = await Student.find({
+            group: {
+                $elemMatch: {
+                    students: {
+                        $in: [req.params.id]
+                    }
+                }
+            }
+        })
+    
+        for (let i = 0; i < student[0].group.length; i++) {
+            let student=await Student.findOneAndUpdate({
+                group:{
+                    $elemMatch:{
+                        students:{
+                            $in:[req.params.id]
+                        }
+                    } 
+                }
+            },{
+                $pull: {
+                    "group.$.students": req.params.id  
+                }
+            }
+            )
+        }
         res.json({ title: 'Student removed', data: data })
     }
+
 }
 
 exports.update = async (req, res) => {
     let { firstName, lastName, email, phone, parentsPhone, password } = req.body;
-
+  
     if (firstName || lastName || email || phone || parentsPhone || password) {
+        const hash = await bcrypt.hash(password, 12)
+        password = hash
+        req.body.password = password
         let data = await Student.findByIdAndUpdate(req.params.id, req.body)
         if (data) {
             res.json({ title: 'Student edited', data: data })
@@ -126,7 +168,7 @@ exports.removeStudentFromGroup = async (req, res) => {
                 },
                 {
                     $pull: {
-                        "group.$.students": idStudent
+                        "group.$.students": idStudent  
                     }
                 })
 
@@ -141,3 +183,5 @@ exports.removeStudentFromGroup = async (req, res) => {
 
 
 }
+
+

@@ -7,7 +7,8 @@ const {
 } = require('../controllers/students')
 const { 
     update, 
-    getScore 
+    getScore,
+    group
 } = require('../controllers/studentRoute')
 
 
@@ -15,7 +16,8 @@ const {
 const router = Router()
 
 router.get('/', getScore)
-router.get('/profile/:id', show)
+router.get('/profile', show)
+router.get('/group/:id', group)
 router.put('/profile/:id', update)
 
 

@@ -3,22 +3,24 @@ const {
     index,
 } = require('../controllers/groups')
 const {
-    show,
-} = require('../controllers/teachers')
-const {
-    update
+    update,
+    getStudents,
+    showProfile
 } = require('../controllers/teacherGroup')
 const {
-    create,
+    create, 
+    show, 
 } = require('../controllers/students')
 
 
 const router = Router()
 
 router.get('/', index)
-router.get('/profile', show)
+router.get('/profile', showProfile)
 router.put('/profile', update)
-router.put('/student', create )
+router.post('/student', create )
+router.get('/student/:id', show )
+router.get('/getStudents', getStudents )
 
 
 
