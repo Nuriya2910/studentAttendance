@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 
 
 exports.login = async (req, res, next) => {
+    // console.log("salom")
     const { email, password } = req.body
     // Check if email and password is provided
     if (!email || !password) {
